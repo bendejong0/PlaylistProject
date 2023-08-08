@@ -86,6 +86,7 @@ public:
 
     void CreateNewPlaylist(Tree* head, string newPlaylistName) {
         Tree* current = head;
+        transform(newPlaylistName.begin(), newPlaylistName.end(), newPlaylistName.begin(), ::toupper);
         while (current->_next != nullptr) {
             current = current->_next;
         }
@@ -96,22 +97,29 @@ public:
     void DeletePlaylist(Tree* head, string playlistName){
         Tree* previous = head;
         Node node;
-        if(&head == &head){
-            node.DeleteAllSongs(head->_firstSongAddress);
-            head -> _playlistName = "";
-        }
+        //if(&head == &head){
+        //    node.DeleteAllSongs(head->_firstSongAddress);
+        //    head -> _playlistName = " ";
+        //}
+
+        transform(playlistName.begin(), playlistName.end(), playlistName.begin(), ::toupper);
+
+
 
         while(head -> _playlistName != playlistName){
             previous = head;
             head = head -> _next;
         }
-        if (head -> _playlistName == playlistName){
+        if(head -> _playlistName == playlistName){
+            node.DeleteAllSongs(head -> _firstSongAddress);
             Tree* deleteThisNode = head;
             head = head -> _next;
             delete deleteThisNode;
             previous -> _next = head;
         }
+        // end of function
     }
+
 };
 
 class Menu : public Tree{
@@ -352,8 +360,8 @@ public:
             case DELETE:
                 cout << "Which playlist would you like to delete?" << endl;
                 Tree::PrintPlaylists(head);
-                cin.ignore();
                 getline(cin, plName); // we get the playlist name,
+                cin.ignore();
                 Tree::DeletePlaylist(head, plName); // and run the delete function.
                 return 0;
 
