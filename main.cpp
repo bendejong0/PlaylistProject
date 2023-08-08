@@ -5,6 +5,8 @@
 #include <algorithm>
 using namespace std;
 
+// TODO: Fix bug that crashed program when you delete the head node
+
 class Node{
 private:
     string _title;
@@ -49,6 +51,15 @@ public:
             previous -> _next = current;
         }
     }
+    void DeleteAllSongs(Node* head){
+        Node* prev = head;
+        while(head!=nullptr){
+            head = head -> _next;
+            delete prev;
+            prev = head;
+        }
+        delete head;
+    }
 };
 
 
@@ -64,16 +75,18 @@ public:
             _firstSongAddress = playlist;
         }
 
-    void PrintPlaylists(Tree* current){
-        while(current -> _next != nullptr){
-            cout << current -> _playlistName << endl;
-            current = current -> _next;
+    void PrintPlaylists(Tree* head){
+        Tree* temp = head;
+        while(temp -> _next != nullptr){
+            cout << temp -> _playlistName << endl;
+            temp = temp -> _next;
         }
-        cout << current -> _playlistName << endl;
+        cout << temp -> _playlistName << endl;
     }
 
     void CreateNewPlaylist(Tree* head, string newPlaylistName) {
         Tree* current = head;
+        transform(newPlaylistName.begin(), newPlaylistName.end(), newPlaylistName.begin(), ::toupper);
         while (current->_next != nullptr) {
             current = current->_next;
         }
@@ -81,19 +94,32 @@ public:
         current->_next = newPlaylist;
     }
 
-    void DeletePlaylist(Tree* current, string playlistName){
-        Tree* previous = current;
-        while(current -> _playlistName != playlistName){
-            previous = current;
-            current = current -> _next;
+    void DeletePlaylist(Tree* head, string playlistName){
+        Tree* previous = head;
+        Node node;
+        //if(&head == &head){
+        //    node.DeleteAllSongs(head->_firstSongAddress);
+        //    head -> _playlistName = " ";
+        //}
+
+        transform(playlistName.begin(), playlistName.end(), playlistName.begin(), ::toupper);
+
+
+
+        while(head -> _playlistName != playlistName){
+            previous = head;
+            head = head -> _next;
         }
-        if (current -> _playlistName == playlistName){
-            Tree* deleteThisNode = current;
-            current = current -> _next;
+        if(head -> _playlistName == playlistName){
+            node.DeleteAllSongs(head -> _firstSongAddress);
+            Tree* deleteThisNode = head;
+            head = head -> _next;
             delete deleteThisNode;
-            previous -> _next = current;
+            previous -> _next = head;
         }
+        // end of function
     }
+
 };
 
 class Menu : public Tree{
@@ -124,8 +150,8 @@ public:
         Tree* firstIteration = current;
         int playlistCounter=1;
         while(firstIteration -> _next != nullptr){
-            cout << firstIteration -> _playlistName << endl;
             playlistCounter++;
+            firstIteration = firstIteration -> _next;
         }
         cout << firstIteration -> _playlistName << endl;
         playlistCounter++;
@@ -258,6 +284,7 @@ public:
 
         }
 
+        // might be trash
         /*else if(current-> _firstSongAddress!=nullptr){
             // the firstSong node basically functions as the head node.
             Node* firstSong = current -> _firstSongAddress;
@@ -307,9 +334,6 @@ public:
                 cout << "Name your playlist: ";
                 getline(cin, plName);
                 cin.ignore();
-                while (head->_next != nullptr) {
-                    head = head->_next;
-                }
                 // clear the buffer.
                 head->Tree::CreateNewPlaylist(head, plName);
                 return 0;
@@ -324,16 +348,20 @@ public:
 
             case PRINT:
                 cout << "All playlists: " << endl << endl;
+                if(head -> _playlistName == ""){
+                    cout << "You have no playlists!" << endl;
+                    return 0;
+                }
                 Tree::PrintPlaylists(head);
-                cout << endl << endl;
+                cout << endl;
                 return 0;
             
             // if the user wants to delete a playlist,
             case DELETE:
                 cout << "Which playlist would you like to delete?" << endl;
                 Tree::PrintPlaylists(head);
-                cin.ignore();
                 getline(cin, plName); // we get the playlist name,
+                cin.ignore();
                 Tree::DeletePlaylist(head, plName); // and run the delete function.
                 return 0;
 
@@ -385,9 +413,9 @@ int main()
             }
         }
     }
-    
+
     while(true){
-        
+    
         cout << endl;
         menu.Welcome();
         menu.ShowOptions();
