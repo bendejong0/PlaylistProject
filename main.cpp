@@ -6,6 +6,9 @@
 using namespace std;
 
 // TODO: Fix bug that crashed program when you delete the head node
+// TODO: be awesome
+
+
 
 class Node{
 private:
@@ -62,7 +65,6 @@ public:
     }
 };
 
-
 class Tree{
 public:
     Node* _firstSongAddress;
@@ -76,7 +78,11 @@ public:
         }
 
     void PrintPlaylists(Tree* head){
-        Tree* temp = head;
+        Tree* temp = head -> _next;
+        // this should never come up, but incase it does, we skip it.
+        if(temp -> _playlistName == "HEAD92903449"){
+            temp = temp -> _next;
+        }
         while(temp -> _next != nullptr){
             cout << temp -> _playlistName << endl;
             temp = temp -> _next;
@@ -85,7 +91,7 @@ public:
     }
 
     void CreateNewPlaylist(Tree* head, string newPlaylistName) {
-        Tree* current = head;
+        Tree* current = head -> _next;
         transform(newPlaylistName.begin(), newPlaylistName.end(), newPlaylistName.begin(), ::toupper);
         while (current->_next != nullptr) {
             current = current->_next;
@@ -95,31 +101,41 @@ public:
     }
 
     void DeletePlaylist(Tree* head, string playlistName){
-        Tree* previous = head;
-        Node node;
-        //if(&head == &head){
-        //    node.DeleteAllSongs(head->_firstSongAddress);
-        //    head -> _playlistName = " ";
-        //}
+        Tree* current = head -> _next;
+        if(current -> _playlistName == "HEAD92903449"){
+            current = current -> _next;
+        }
+        Tree* previous = current;
+        if(current->_next != nullptr){
+            current = current -> _next;
+        }
+
+        Node node; // making a node object so we can access the functions in the Node class.
 
         transform(playlistName.begin(), playlistName.end(), playlistName.begin(), ::toupper);
 
-
-
-        while(head -> _playlistName != playlistName){
-            previous = head;
-            head = head -> _next;
+        while(current -> _playlistName != playlistName){
+            previous = current;
+            current = current -> _next;
         }
-        if(head -> _playlistName == playlistName){
-            node.DeleteAllSongs(head -> _firstSongAddress);
-            Tree* deleteThisNode = head;
-            head = head -> _next;
-            delete deleteThisNode;
-            previous -> _next = head;
+        if(current -> _playlistName == playlistName){
+            if(current->_next == nullptr){
+                previous -> _next = nullptr;
+                node.DeleteAllSongs(current -> _firstSongAddress);
+                delete current;
+                return;
+            }
+            else{
+                node.DeleteAllSongs(current -> _firstSongAddress);
+                Tree* deleteThisNode = current;
+                current = current -> _next;
+                delete deleteThisNode;
+                previous -> _next = current;
+            }
         }
         // end of function
     }
-
+    // end of the tree class.
 };
 
 class Menu : public Tree{
@@ -144,7 +160,8 @@ public:
     }
 
     // function that selects a playlist
-    void SelectPlaylist(Tree* current){
+    void SelectPlaylist(Tree* head){
+        Tree* current = head -> _next;
         
         // a variable to count how many playlists we have.
         Tree* firstIteration = current;
@@ -283,43 +300,11 @@ public:
             }
 
         }
-
-        // might be trash
-        /*else if(current-> _firstSongAddress!=nullptr){
-            // the firstSong node basically functions as the head node.
-            Node* firstSong = current -> _firstSongAddress;
-            Node* temp = firstSong;
-            // creating a loop so the user can manipulate the desired playlist.
-            bool falseIfExitLoop = true;
-            while(falseIfExitLoop){
-                cout << "What would you like to do?\n 1) Add a song\n 2) Delete a song\n 4) Go back" << endl;
-                cin >> songSelectUser;
-                songOption = static_cast<songOptions>(songSelectUser);
-                switch(songOption){
-                    case ADD:
-                        // TODO: FIX THIS!!
-                        break;
-
-                    case DELETE:
-                        // TODO: FIX THIS ASWELL!!
-                        break;
-
-                    case EXIT:
-                        cout << "Exiting..." << endl;
-                        falseIfExitLoop = false;
-                        break;
-
-                    default:
-                        cout << "Please enter a valid option!" << endl;
-                        break;
-
-                }
-            }
-        }*/
     }
 
     // function that processes user input
     int ProcessInput(Tree* head) {
+        Tree* current = head -> _next;
         string plName;
         int user;
         cin >> user;
@@ -335,7 +320,7 @@ public:
                 getline(cin, plName);
                 cin.ignore();
                 // clear the buffer.
-                head->Tree::CreateNewPlaylist(head, plName);
+                current->Tree::CreateNewPlaylist(head, plName);
                 return 0;
 
 
@@ -348,7 +333,7 @@ public:
 
             case PRINT:
                 cout << "All playlists: " << endl << endl;
-                if(head -> _playlistName == ""){
+                if(current -> _playlistName == ""){
                     cout << "You have no playlists!" << endl;
                     return 0;
                 }
@@ -395,13 +380,21 @@ int main()
     cin >> user;
     cin.ignore();
 
-    Tree* head;
+    Tree* head = new Tree(); // the head node, an undeletable node that points to the first playlist.
+                // this should solve the issue of the user deleting the first playlist, which makes the program crash.
+
+    head -> _playlistName = "HEAD92903449"; // just a super large prime number. If the playlist name is this, we know it's the head node.
+                                            // meaning that we can not print it's data, since the user did not make it.
+
+    Tree* firstPlaylist = new Tree();     // the first playlist. The user can do whatever they want to it, but it doesnt matter because the head node will always exist.
+                             // this keeps our data structure safe.
         
     if (user == 1) {
         cout << "Name your playlist: ";
         getline(cin, plName);
-        head = new Tree(plName); // Use the existing 'head' pointer
-    } 
+        firstPlaylist -> _playlistName = plName;
+        head -> _next = firstPlaylist;
+    }
     else {
        while (true) {
             cout << "Please choose a valid option!" << endl;
@@ -409,6 +402,10 @@ int main()
             cin >> user;
             cin.ignore();
             if (user == 1) {
+                cout << "Name your playlist: ";
+                getline(cin, plName);
+                firstPlaylist -> _playlistName = plName;
+                head -> _next = firstPlaylist;
                 break;
             }
         }
