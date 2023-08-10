@@ -5,10 +5,6 @@
 #include <algorithm>
 using namespace std;
 
-// TODO: Fix bug that crashed program when you delete the head node
-// TODO: be awesome
-
-
 
 class Node{
 private:
@@ -91,8 +87,8 @@ public:
     }
 
     void CreateNewPlaylist(Tree* head, string newPlaylistName) {
-        Tree* current = head -> _next;
         transform(newPlaylistName.begin(), newPlaylistName.end(), newPlaylistName.begin(), ::toupper);
+        Tree* current = head -> _next;
         while (current->_next != nullptr) {
             current = current->_next;
         }
@@ -101,15 +97,8 @@ public:
     }
 
     void DeletePlaylist(Tree* head, string playlistName){
-        Tree* current = head -> _next;
-        if(current -> _playlistName == "HEAD92903449"){
-            current = current -> _next;
-        }
+        Tree* current = head;
         Tree* previous = current;
-        if(current->_next != nullptr){
-            current = current -> _next;
-        }
-
         Node node; // making a node object so we can access the functions in the Node class.
 
         transform(playlistName.begin(), playlistName.end(), playlistName.begin(), ::toupper);
@@ -132,6 +121,10 @@ public:
                 delete deleteThisNode;
                 previous -> _next = current;
             }
+        }
+        else{
+            cout << "Playlist not found!" << endl;
+            return;
         }
         // end of function
     }
@@ -347,6 +340,7 @@ public:
                 Tree::PrintPlaylists(head);
                 getline(cin, plName); // we get the playlist name,
                 cin.ignore();
+                transform(plName.begin(), plName.end(), plName.begin(), ::toupper);
                 Tree::DeletePlaylist(head, plName); // and run the delete function.
                 return 0;
 
@@ -392,6 +386,7 @@ int main()
     if (user == 1) {
         cout << "Name your playlist: ";
         getline(cin, plName);
+        transform(plName.begin(), plName.end(), plName.begin(), ::toupper);
         firstPlaylist -> _playlistName = plName;
         head -> _next = firstPlaylist;
     }
@@ -404,6 +399,7 @@ int main()
             if (user == 1) {
                 cout << "Name your playlist: ";
                 getline(cin, plName);
+                transform(plName.begin(), plName.end(), plName.begin(), ::toupper);
                 firstPlaylist -> _playlistName = plName;
                 head -> _next = firstPlaylist;
                 break;
